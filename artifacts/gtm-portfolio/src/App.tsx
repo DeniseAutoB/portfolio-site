@@ -26,25 +26,27 @@ type Work = {
   category: string;
   tags: string[];
   accent: string;
-  kind: 'map' | 'pipeline' | 'loop' | 'score';
+  kind: 'map' | 'pipeline' | 'loop' | 'score' | 'prospect';
   context: string;
-  approach: string;
-  artifacts: string[];
+  approach?: string;
+  artifacts?: string[];
+  isSample: boolean;
+  projectUrl?: string;
 };
 
 const work: Work[] = [
   {
-    id: 'lifecycle',
+    id: 'clay-prospect-list',
     number: '01',
-    title: 'A lifecycle that knows where it is',
-    summary: 'A shared language for the moments between first touch, qualified demand, and a real sales conversation.',
-    category: 'Lifecycle design',
-    tags: ['Lifecycle', 'Handoff', 'CRM'],
+    title: 'Clay Prospect List: Bookkeeping Cleanup for Agencies',
+    summary: '38 US marketing agencies narrowed to 10 verified contacts with fact-checked openers.',
+    category: 'Prospecting automation',
+    tags: ['Clay', 'ZeroBounce', 'Surfe', 'AI personalization'],
     accent: 'orange',
-    kind: 'map',
-    context: 'Illustrative work sample · B2B SaaS',
-    approach: 'Start with observable buyer and seller actions, not a ladder of abstract labels. Define what changes state, what evidence is required, and who owns the next move.',
-    artifacts: ['Lifecycle state map', 'Entry / exit criteria', 'Ownership and SLA matrix'],
+    kind: 'prospect',
+    context: 'REAL PROJECT · CLAY BUILD',
+    isSample: false,
+    projectUrl: 'https://github.com/DeniseAutoB/gtm-automation-portfolio/tree/main/clay',
   },
   {
     id: 'routing',
@@ -56,6 +58,7 @@ const work: Work[] = [
     accent: 'mint',
     kind: 'pipeline',
     context: 'Illustrative work sample · systems architecture',
+    isSample: true,
     approach: 'Separate identity resolution, eligibility, prioritization, and assignment. Give each decision a reason code, preserve a safe fallback, and make exceptions visible instead of silently magical.',
     artifacts: ['Decision tree', 'Field contract', 'Exception queue design'],
   },
@@ -69,6 +72,7 @@ const work: Work[] = [
     accent: 'blue',
     kind: 'score',
     context: 'Illustrative work sample · operating model',
+    isSample: true,
     approach: 'Combine fit, recency, and meaningful behavior without collapsing them into an opaque score. Connect each signal to a specific play, owner, and expiry window.',
     artifacts: ['Signal taxonomy', 'Action matrix', 'Decay and suppression rules'],
   },
@@ -82,6 +86,7 @@ const work: Work[] = [
     accent: 'ink',
     kind: 'loop',
     context: 'Illustrative work sample · measurement design',
+    isSample: true,
     approach: 'Make feedback usable before making it comprehensive. Establish a small set of outcomes, capture context at the point of work, and review patterns across teams on a reliable cadence.',
     artifacts: ['Outcome taxonomy', 'Reporting spec', 'Review ritual'],
   },
@@ -95,6 +100,16 @@ const navItems = [
 ] as const;
 
 function ProjectVisual({ kind }: { kind: Work['kind'] }) {
+  if (kind === 'prospect') {
+    return (
+      <div className="visual visual-prospect" aria-label="38 US marketing agencies narrowed to 10 verified contacts">
+        <div className="prospect-step"><small>US MARKETING AGENCIES</small><strong>38</strong></div>
+        <ArrowRight size={22} aria-hidden="true" />
+        <div className="prospect-step"><small>VERIFIED CONTACTS</small><strong>10</strong></div>
+        <span className="prospect-foot mono">FACT-CHECKED OPENERS</span>
+      </div>
+    );
+  }
   if (kind === 'map') {
     return (
       <div className="visual visual-map" aria-label="Illustrative lifecycle state map">
@@ -221,24 +236,25 @@ function App() {
         <section className="work-section shell" id="work">
           <div className="section-heading">
             <div><div className="section-kicker mono"><span>02</span><span>SELECTED WORK</span></div><h2 className="display">Built to connect<br /><em>the dots.</em></h2></div>
-            <p>Four lenses on the same problem: how do we make a complex revenue motion easier to see, trust, and improve?</p>
+            <p>One prospecting build, alongside three illustrative perspectives on making revenue motions easier to see, trust, and improve.</p>
           </div>
-          <div className="work-note mono"><span><i /> CONCEPT PROJECTS</span><span>ILLUSTRATIVE WORK SAMPLES · NOT VERIFIED CLIENT RESULTS</span></div>
+          <div className="work-note mono"><span><i /> SELECTED PROJECTS</span><span>1 REAL PROJECT · 3 WORK SAMPLES (ILLUSTRATIVE, NOT CLIENT RESULTS)</span></div>
           <div className="work-grid">
             {work.map((item) => (
               <article className={`work-card ${item.accent}`} key={item.id} data-testid={`card-work-${item.id}`}>
-                <div className="work-card-top mono"><span>FIELD NOTE / {item.number}</span><span>{item.category}</span></div>
+                <div className="work-card-top mono"><span>{item.isSample ? 'WORK SAMPLE' : 'REAL PROJECT'} / {item.number}</span><span>{item.category}</span></div>
                 <ProjectVisual kind={item.kind} />
                 <div className="work-card-copy">
                   <div className="work-title-row"><h3 className="display">{item.title}</h3><button aria-label={`Read ${item.title}`} onClick={() => setActiveWork(item)} className="round-arrow" data-testid={`button-open-${item.id}`}><ArrowUpRight size={18} /></button></div>
                   <p>{item.summary}</p>
                   <div className="tag-list">{item.tags.map(tag => <span key={tag}>{tag}</span>)}</div>
+                  {item.projectUrl && <a className="work-build-link" href={item.projectUrl} target="_blank" rel="noopener noreferrer">VIEW THE BUILD <ArrowUpRight size={13} /></a>}
                 </div>
-                <button className="card-hit" onClick={() => setActiveWork(item)} aria-label={`Open work sample: ${item.title}`} />
+                <button className="card-hit" onClick={() => setActiveWork(item)} aria-label={`${item.isSample ? 'Open work sample' : 'Open project'}: ${item.title}`} />
               </article>
             ))}
           </div>
-          <p className="work-footnote mono"><Asterisk size={13} /> These are illustrative systems exercises. Replace, expand, or remove with your own verified work.</p>
+          <p className="work-footnote mono"><Asterisk size={13} /> The Clay card links to a real project build; the remaining three cards are illustrative work samples, not client results.</p>
         </section>
 
         <section className="method-section" id="method">
@@ -301,15 +317,18 @@ function App() {
 
       {activeWork && <div className="modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setActiveWork(null); }}>
         <section className="work-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-          <button className="modal-close" onClick={() => setActiveWork(null)} aria-label="Close work sample" data-testid="button-close-modal"><X size={19} /></button>
-          <p className="section-kicker mono"><span>FIELD NOTE / {activeWork.number}</span><span>{activeWork.category}</span></p>
+          <button className="modal-close" onClick={() => setActiveWork(null)} aria-label="Close project details" data-testid="button-close-modal"><X size={19} /></button>
+          <p className="section-kicker mono"><span>{activeWork.isSample ? 'FIELD NOTE' : 'REAL PROJECT'} / {activeWork.number}</span><span>{activeWork.category}</span></p>
           <p className="modal-context mono">{activeWork.context}</p>
           <h2 className="display" id="modal-title">{activeWork.title}</h2>
           <p className="modal-summary">{activeWork.summary}</p>
           <div className="modal-rule" />
-          <p className="modal-label mono">THE THINKING</p><p className="modal-approach">{activeWork.approach}</p>
-          <p className="modal-label mono">POSSIBLE ARTIFACTS</p><ul className="artifact-list">{activeWork.artifacts.map(artifact => <li key={artifact}><Check size={14} />{artifact}</li>)}</ul>
-          <p className="modal-disclaimer mono">ILLUSTRATIVE EXERCISE — NOT A CLAIM OF COMPLETED CLIENT WORK OR MEASURED IMPACT.</p>
+          {!activeWork.isSample && activeWork.projectUrl && <a className="modal-build-link" href={activeWork.projectUrl} target="_blank" rel="noopener noreferrer">View the build <ArrowUpRight size={14} /></a>}
+          {activeWork.isSample && <>
+            <p className="modal-label mono">THE THINKING</p><p className="modal-approach">{activeWork.approach}</p>
+            <p className="modal-label mono">POSSIBLE ARTIFACTS</p><ul className="artifact-list">{activeWork.artifacts?.map(artifact => <li key={artifact}><Check size={14} />{artifact}</li>)}</ul>
+            <p className="modal-disclaimer mono">ILLUSTRATIVE EXERCISE — NOT A CLAIM OF COMPLETED CLIENT WORK OR MEASURED IMPACT.</p>
+          </>}
         </section>
       </div>}
       <a className="screenreader-skip" href="#top">Skip to content</a>
